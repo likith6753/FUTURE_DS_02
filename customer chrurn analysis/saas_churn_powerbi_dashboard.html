@@ -1,0 +1,453 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary)}
+.dash{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:#0f1c33;padding:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo .product{font-size:13px;font-weight:500;color:#fff;letter-spacing:.3px}
+.sidebar-logo .sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+.nav-section{padding:16px 12px 6px;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:rgba(255,255,255,.55);font-size:12px;transition:background .15s;border-left:3px solid transparent;margin:1px 0}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(42,120,214,.15);color:#fff;border-left-color:#2a78d6}
+.nav-item i{font-size:15px;width:18px}
+.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.3)}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{background:var(--surface-2);border-bottom:0.5px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:15px;font-weight:500;color:var(--text-primary)}
+.topbar-meta{font-size:11px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.filter-bar{display:flex;gap:8px}
+.filter-pill{padding:5px 12px;border:0.5px solid var(--border-strong);border-radius:20px;font-size:11px;color:var(--text-secondary);cursor:pointer;background:var(--surface-2);transition:all .15s}
+.filter-pill:hover,.filter-pill.active{background:#2a78d6;color:#fff;border-color:#2a78d6}
+.content{padding:20px 24px;flex:1}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:500;color:var(--text-primary);font-variant-numeric:tabular-nums;line-height:1}
+.kpi-delta{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi-delta.pos{color:#1baf7a}.kpi-delta.neg{color:#e34948}
+.kpi-accent{position:absolute;top:0;right:0;width:4px;height:100%;border-radius:0 12px 12px 0}
+.kpi-sparkline{margin-top:8px;height:28px;opacity:.6}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-7-5{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:500;color:var(--text-primary)}
+.card-badge{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bg-accent);color:var(--text-accent)}
+.chart-wrap{position:relative;width:100%}
+.h220{height:220px}.h180{height:180px}.h240{height:240px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.bar-list{display:flex;flex-direction:column;gap:8px}
+.bar-item{display:flex;flex-direction:column;gap:3px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{font-size:11px;color:var(--text-secondary);width:110px;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:var(--surface-1);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-size:11px;font-weight:500;color:var(--text-primary);width:40px;text-align:right;flex-shrink:0}
+.risk-table{width:100%;font-size:11px;border-collapse:collapse}
+.risk-table th{color:var(--text-muted);font-weight:500;padding:0 6px 8px;text-align:left;border-bottom:0.5px solid var(--border)}
+.risk-table td{padding:7px 6px;border-bottom:0.5px solid var(--border);color:var(--text-primary)}
+.risk-table tr:last-child td{border:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-red{background:#fcebeb;color:#a32d2d}.badge-amber{background:#faeeda;color:#854f0b}.badge-green{background:#eaf3de;color:#3b6d11}
+.badge-blue{background:#e6f1fb;color:#185fa5}
+.insight-list{display:flex;flex-direction:column;gap:8px}
+.insight{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:8px;background:var(--surface-1)}
+.insight-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.insight-body{flex:1}
+.insight-title{font-size:11px;font-weight:500;color:var(--text-primary);margin-bottom:2px}
+.insight-desc{font-size:10px;color:var(--text-secondary);line-height:1.5}
+.progress-ring-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.cohort-heatmap{display:grid;gap:2px}
+.heat-cell{border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;transition:opacity .2s;cursor:default}
+.heat-cell:hover{opacity:.8}
+.tab-bar{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:14px}
+.tab{padding:7px 14px;font-size:11px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#2a78d6;border-bottom-color:#2a78d6;font-weight:500}
+</style>
+
+<h2 class="sr-only">SaaS customer churn and retention Power BI dashboard showing 1,500 customers with 22.2% overall churn rate, broken down by plan, region, channel, and time.</h2>
+
+<div class="dash">
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="width:28px;height:28px;border-radius:8px;background:#2a78d6;display:flex;align-items:center;justify-content:center"><i class="ti ti-chart-bar" style="color:#fff;font-size:14px" aria-hidden="true"></i></div>
+      <div>
+        <div class="product">ChurnIQ</div>
+        <div class="sub">Retention Analytics</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:6px 10px;font-size:10px;color:rgba(255,255,255,.5)">Jan 2023 – Jan 2025</div>
+  </div>
+  <div class="nav-section">Analytics</div>
+  <div class="nav-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Overview</div>
+  <div class="nav-item"><i class="ti ti-users" aria-hidden="true"></i>Customers</div>
+  <div class="nav-item"><i class="ti ti-trending-down" aria-hidden="true"></i>Churn Analysis</div>
+  <div class="nav-item"><i class="ti ti-calendar-stats" aria-hidden="true"></i>Cohorts</div>
+  <div class="nav-item"><i class="ti ti-world" aria-hidden="true"></i>Regions</div>
+  <div class="nav-section">Reports</div>
+  <div class="nav-item"><i class="ti ti-file-analytics" aria-hidden="true"></i>Monthly Report</div>
+  <div class="nav-item"><i class="ti ti-settings" aria-hidden="true"></i>Settings</div>
+  <div class="sidebar-footer">
+    <div style="color:rgba(255,255,255,.45)">Data source: churn_analysis.xlsx</div>
+    <div style="margin-top:2px">Last refreshed: Jan 2025</div>
+  </div>
+</div>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Churn & Retention Overview</div>
+    <div class="topbar-meta">1,500 customers · All plans · All regions</div>
+  </div>
+  <div class="topbar-right">
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-pill active" data-filter="all">All Plans</div>
+      <div class="filter-pill" data-filter="Starter">Starter</div>
+      <div class="filter-pill" data-filter="Growth">Growth</div>
+      <div class="filter-pill" data-filter="Pro">Pro</div>
+      <div class="filter-pill" data-filter="Enterprise">Enterprise</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-accent" style="background:#2a78d6"></div>
+    <div class="kpi-label">Total customers</div>
+    <div class="kpi-value" id="kpi-total">1,500</div>
+    <div class="kpi-delta pos"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> +1,500 acquired</div>
+    <canvas class="kpi-sparkline" id="spk1" role="img" aria-label="Customer growth sparkline"></canvas>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:#1baf7a"></div>
+    <div class="kpi-label">Active customers</div>
+    <div class="kpi-value" id="kpi-active">1,167</div>
+    <div class="kpi-delta pos"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> 77.8% retention</div>
+    <canvas class="kpi-sparkline" id="spk2" role="img" aria-label="Active customers sparkline"></canvas>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:#e34948"></div>
+    <div class="kpi-label">Churned</div>
+    <div class="kpi-value" id="kpi-churned">333</div>
+    <div class="kpi-delta neg"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> 22.2% churn rate</div>
+    <canvas class="kpi-sparkline" id="spk3" role="img" aria-label="Churn sparkline"></canvas>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:#eda100"></div>
+    <div class="kpi-label">Total MRR</div>
+    <div class="kpi-value" id="kpi-mrr">$177K</div>
+    <div class="kpi-delta pos"><i class="ti ti-trending-up" style="font-size:12px" aria-hidden="true"></i> Active subscribers</div>
+    <canvas class="kpi-sparkline" id="spk4" role="img" aria-label="MRR sparkline"></canvas>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:#4a3aa7"></div>
+    <div class="kpi-label">Avg LTV</div>
+    <div class="kpi-value" id="kpi-ltv">$1,477</div>
+    <div class="kpi-delta neg"><i class="ti ti-trending-down" style="font-size:12px" aria-hidden="true"></i> Churned: 6mo avg</div>
+    <canvas class="kpi-sparkline" id="spk5" role="img" aria-label="LTV sparkline"></canvas>
+  </div>
+</div>
+
+<div class="grid-7-5">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Monthly signups vs churn</div>
+      <div class="tab-bar" style="margin:0;border:none">
+        <div class="tab active" id="tab-abs" onclick="switchTrendTab('abs')">Count</div>
+        <div class="tab" id="tab-rate" onclick="switchTrendTab('rate')">Churn %</div>
+      </div>
+    </div>
+    <div class="chart-wrap h240"><canvas id="trendChart" role="img" aria-label="Line chart of monthly signups and churn from May 2023 to Dec 2024"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#2a78d6"></span>New signups</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e34948"></span>Churned</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Churn by plan</div>
+      <div class="card-badge">4 plans</div>
+    </div>
+    <div class="chart-wrap h240"><canvas id="planChart" role="img" aria-label="Bar chart showing churn rate by subscription plan: Starter 33.4%, Growth 19.3%, Pro 13.4%, Enterprise 4.6%"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#e34948"></span>Churn rate</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#1baf7a"></span>Retention</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-3">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Churn reasons</div><div class="card-badge">333 churned</div></div>
+    <div class="chart-wrap h220"><canvas id="reasonChart" role="img" aria-label="Donut chart of churn reasons: Price too high 34.2%, Missing features 20.7%, Competitor switch 19.5%, others"></canvas></div>
+    <div class="legend" style="margin-top:6px">
+      <div class="legend-item"><span class="legend-dot" style="background:#e34948"></span>Price 34.2%</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#2a78d6"></span>Features 20.7%</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#eda100"></span>Competitor 19.5%</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#1baf7a"></span>Not needed 9.9%</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#4a3aa7"></span>Support 9.3%</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e87ba4"></span>Budget 6.3%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Churn by region</div></div>
+    <div class="bar-list" style="margin-top:4px">
+      <div class="bar-item">
+        <div class="bar-row">
+          <div class="bar-label">Latin America</div>
+          <div class="bar-track"><div class="bar-fill" style="width:75%;background:#e34948"></div></div>
+          <div class="bar-val">25.4%</div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-row">
+          <div class="bar-label">North America</div>
+          <div class="bar-track"><div class="bar-fill" style="width:70%;background:#e34948"></div></div>
+          <div class="bar-val">23.8%</div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-row">
+          <div class="bar-label">Middle East</div>
+          <div class="bar-track"><div class="bar-fill" style="width:65%;background:#eda100"></div></div>
+          <div class="bar-val">22.1%</div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-row">
+          <div class="bar-label">Europe</div>
+          <div class="bar-track"><div class="bar-fill" style="width:60%;background:#eda100"></div></div>
+          <div class="bar-val">20.6%</div>
+        </div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-row">
+          <div class="bar-label">Asia-Pacific</div>
+          <div class="bar-track"><div class="bar-fill" style="width:58%;background:#1baf7a"></div></div>
+          <div class="bar-val">19.9%</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;border-top:0.5px solid var(--border);padding-top:12px">
+      <div class="card-title" style="margin-bottom:8px">Avg LTV by region</div>
+      <div class="bar-list">
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Asia-Pacific</div><div class="bar-track"><div class="bar-fill" style="width:92%;background:#2a78d6"></div></div><div class="bar-val">$1,752</div></div></div>
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Referral</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:#2a78d6"></div></div><div class="bar-val">$1,496</div></div></div>
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Latin America</div><div class="bar-track"><div class="bar-fill" style="width:58%;background:#2a78d6"></div></div><div class="bar-val">$1,089</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Support tickets vs churn risk</div></div>
+    <div class="chart-wrap h180"><canvas id="ticketChart" role="img" aria-label="Bar chart showing churn rate increases from 13.4% at 0 tickets to 50% at 7 or more tickets"></canvas></div>
+    <div style="margin-top:12px;border-top:0.5px solid var(--border);padding-top:12px">
+      <div class="card-title" style="margin-bottom:8px">Acquisition channel</div>
+      <div class="bar-list">
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Organic</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#1baf7a"></div></div><div class="bar-val">19.8%</div></div></div>
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Paid Search</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:#eda100"></div></div><div class="bar-val">22.2%</div></div></div>
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Social</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:#eda100"></div></div><div class="bar-val">23.3%</div></div></div>
+        <div class="bar-item"><div class="bar-row"><div class="bar-label">Referral</div><div class="bar-track"><div class="bar-fill" style="width:71%;background:#e34948"></div></div><div class="bar-val">24.8%</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Cohort retention heatmap</div><div class="card-badge">18 cohorts</div></div>
+    <div id="heatmap" style="margin-top:4px"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Key insights & actions</div><div class="card-badge">5 priorities</div></div>
+    <div class="insight-list">
+      <div class="insight">
+        <div class="insight-icon" style="background:#fcebeb"><i class="ti ti-alert-triangle" style="color:#a32d2d;font-size:13px" aria-hidden="true"></i></div>
+        <div class="insight-body">
+          <div class="insight-title">Starter plan drives 59% of all churns <span class="badge badge-red">High</span></div>
+          <div class="insight-desc">33.4% churn rate — 4× Enterprise. Launch onboarding success program weeks 1–4. Offer upgrade incentive at day 60.</div>
+        </div>
+      </div>
+      <div class="insight">
+        <div class="insight-icon" style="background:#fcebeb"><i class="ti ti-currency-dollar" style="color:#a32d2d;font-size:13px" aria-hidden="true"></i></div>
+        <div class="insight-body">
+          <div class="insight-title">Price cited by 34% of churned customers <span class="badge badge-red">High</span></div>
+          <div class="insight-desc">At $29/mo, this is a value gap, not a price issue. Monthly ROI emails + annual billing at 20% discount can reduce this by 10–15%.</div>
+        </div>
+      </div>
+      <div class="insight">
+        <div class="insight-icon" style="background:#faeeda"><i class="ti ti-ticket" style="color:#854f0b;font-size:13px" aria-hidden="true"></i></div>
+        <div class="insight-body">
+          <div class="insight-title">5+ tickets → 50% churn rate <span class="badge badge-amber">Medium</span></div>
+          <div class="insight-desc">Build a real-time risk score. Trigger CS outreach + free training session offer when threshold is crossed.</div>
+        </div>
+      </div>
+      <div class="insight">
+        <div class="insight-icon" style="background:#eaf3de"><i class="ti ti-users" style="color:#3b6d11;font-size:13px" aria-hidden="true"></i></div>
+        <div class="insight-body">
+          <div class="insight-title">Month 3–4 is the retention cliff <span class="badge badge-amber">Medium</span></div>
+          <div class="insight-desc">Customers surviving past month 6 are dramatically stickier. Redesign onboarding to hit activation by day 14 and day 30.</div>
+        </div>
+      </div>
+      <div class="insight">
+        <div class="insight-icon" style="background:#e6f1fb"><i class="ti ti-star" style="color:#185fa5;font-size:13px" aria-hidden="true"></i></div>
+        <div class="insight-body">
+          <div class="insight-title">Organic has lowest churn at 19.8% <span class="badge badge-blue">Opportunity</span></div>
+          <div class="insight-desc">Asia-Pacific highest LTV at $1,752. Scale organic + referral acquisition; expand APAC marketing investment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const planData = {
+  all:{total:1500,active:1167,churned:333,mrr:177023,ltv:1477,plans:{Starter:{total:584,churned:195,rate:33.4},Growth:{total:482,churned:93,rate:19.3},Pro:{total:283,churned:38,rate:13.4},Enterprise:{total:151,churned:7,rate:4.6}}},
+  Starter:{total:584,active:389,churned:195,mrr:389*29,ltv:600,plans:{Starter:{total:584,churned:195,rate:33.4},Growth:{total:0,churned:0,rate:0},Pro:{total:0,churned:0,rate:0},Enterprise:{total:0,churned:0,rate:0}}},
+  Growth:{total:482,active:389,churned:93,mrr:389*79,ltv:1200,plans:{Starter:{total:0,churned:0,rate:0},Growth:{total:482,churned:93,rate:19.3},Pro:{total:0,churned:0,rate:0},Enterprise:{total:0,churned:0,rate:0}}},
+  Pro:{total:283,active:245,churned:38,mrr:245*199,ltv:2400,plans:{Starter:{total:0,churned:0,rate:0},Growth:{total:0,churned:0,rate:0},Pro:{total:283,churned:38,rate:13.4},Enterprise:{total:0,churned:0,rate:0}}},
+  Enterprise:{total:151,active:144,churned:7,mrr:144*599,ltv:5800,plans:{Starter:{total:0,churned:0,rate:0},Growth:{total:0,churned:0,rate:0},Pro:{total:0,churned:0,rate:0},Enterprise:{total:151,churned:7,rate:4.6}}}
+};
+
+const months=['2023-05','2023-06','2023-07','2023-08','2023-09','2023-10','2023-11','2023-12','2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'];
+const newCust=[55,60,47,74,76,72,59,55,62,54,68,71,56,48,76,63,58,64,75,62];
+const churnCust=[15,13,9,15,19,17,10,14,9,10,15,19,12,8,19,12,13,16,20,14];
+const churnRate=months.map((_,i)=>Math.round(churnCust[i]/newCust[i]*100*10)/10);
+const labels=months.map(m=>{const[y,mo]=m.split('-');const d=new Date(+y,+mo-1);return d.toLocaleString('default',{month:'short',year:'2-digit'})});
+
+function drawSparklines(){
+  const spkData=[[40,45,52,58,62,70,75,84,90,100],[70,72,75,74,78,76,78,80,79,78],[30,28,25,24,22,24,21,20,22,22],[110,118,130,140,150,158,165,170,172,177],[1200,1300,1400,1450,1477,1480,1475,1477,1478,1477]];
+  const ids=['spk1','spk2','spk3','spk4','spk5'];
+  const colors=['#2a78d6','#1baf7a','#e34948','#eda100','#4a3aa7'];
+  ids.forEach((id,i)=>{
+    const canvas=document.getElementById(id);
+    if(!canvas)return;
+    canvas.width=canvas.offsetWidth*2||160;canvas.height=56;
+    const ctx=canvas.getContext('2d');
+    const d=spkData[i],w=canvas.width,h=canvas.height;
+    const min=Math.min(...d),max=Math.max(...d),rng=max-min||1;
+    ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.beginPath();
+    d.forEach((v,j)=>{const x=j/(d.length-1)*w,y=h-(v-min)/rng*(h-4)-2;j===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+    ctx.stroke();
+  });
+}
+
+let trendMode='abs',trendChart,planChart,reasonChart,ticketChart;
+
+function buildTrend(){
+  const ctx=document.getElementById('trendChart').getContext('2d');
+  if(trendChart)trendChart.destroy();
+  const datasets=trendMode==='abs'?[
+    {label:'New signups',data:newCust,borderColor:'#2a78d6',backgroundColor:'rgba(42,120,214,.08)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#2a78d6',borderWidth:2},
+    {label:'Churned',data:churnCust,borderColor:'#e34948',backgroundColor:'rgba(227,73,72,.06)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#e34948',borderWidth:2}
+  ]:[
+    {label:'Churn rate %',data:churnRate,borderColor:'#e34948',backgroundColor:'rgba(227,73,72,.1)',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#e34948',borderWidth:2}
+  ];
+  trendChart=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{grid:{display:false},ticks:{color:'#898781',font:{size:10},maxRotation:40,autoSkip:true,maxTicksLimit:10}},y:{grid:{color:'rgba(200,200,200,.15)'},ticks:{color:'#898781',font:{size:10}},beginAtZero:true}}}});
+}
+
+function switchTrendTab(mode){
+  trendMode=mode;
+  document.getElementById('tab-abs').className='tab'+(mode==='abs'?' active':'');
+  document.getElementById('tab-rate').className='tab'+(mode==='rate'?' active':'');
+  buildTrend();
+}
+
+function buildPlanChart(filter){
+  const ctx=document.getElementById('planChart').getContext('2d');
+  if(planChart)planChart.destroy();
+  const plans=filter==='all'?['Starter','Growth','Pro','Enterprise']:[filter];
+  const allRates={Starter:33.4,Growth:19.3,Pro:13.4,Enterprise:4.6};
+  const allRet={Starter:66.6,Growth:80.7,Pro:86.6,Enterprise:95.4};
+  const colors={Starter:'#e34948',Growth:'#eda100',Pro:'#2a78d6',Enterprise:'#1baf7a'};
+  planChart=new Chart(ctx,{type:'bar',data:{labels:plans,datasets:[
+    {label:'Churn rate %',data:plans.map(p=>allRates[p]),backgroundColor:plans.map(p=>colors[p]),borderRadius:4,barPercentage:.55},
+    {label:'Retention %',data:plans.map(p=>allRet[p]),backgroundColor:plans.map(p=>colors[p]+'33'),borderRadius:4,barPercentage:.55}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw+'%'}}},scales:{x:{grid:{display:false},ticks:{color:'#898781',font:{size:11}}},y:{max:100,grid:{color:'rgba(200,200,200,.15)'},ticks:{color:'#898781',font:{size:10},callback:v=>v+'%'},beginAtZero:true}}}});
+}
+
+function buildReasonChart(){
+  const ctx=document.getElementById('reasonChart').getContext('2d');
+  if(reasonChart)reasonChart.destroy();
+  reasonChart=new Chart(ctx,{type:'doughnut',data:{labels:['Price too high','Missing features','Competitor switch','No longer needed','Poor support','Budget cut'],datasets:[{data:[34.2,20.7,19.5,9.9,9.3,6.3],backgroundColor:['#e34948','#2a78d6','#eda100','#1baf7a','#4a3aa7','#e87ba4'],borderWidth:3,borderColor:'transparent',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}}}});
+}
+
+function buildTicketChart(){
+  const ctx=document.getElementById('ticketChart').getContext('2d');
+  if(ticketChart)ticketChart.destroy();
+  const rates=[13.4,19.5,24.6,33.6,50.0];
+  const bgColors=rates.map(r=>r>30?'#e34948':r>22?'#eda100':'#1baf7a');
+  ticketChart=new Chart(ctx,{type:'bar',data:{labels:['0','1–2','3–4','5–6','7+'],datasets:[{label:'Churn rate %',data:rates,backgroundColor:bgColors,borderRadius:4,barPercentage:.65}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Churn: '+ctx.raw+'%'}}},scales:{x:{grid:{display:false},ticks:{color:'#898781',font:{size:10}}},y:{max:60,grid:{color:'rgba(200,200,200,.15)'},ticks:{color:'#898781',font:{size:10},callback:v=>v+'%'},beginAtZero:true}}}});
+}
+
+function buildHeatmap(){
+  const cohorts=[['2023-01',62,0.61],['2023-02',58,0.59],['2023-03',70,0.63],['2023-04',65,0.60],['2023-05',55,0.65],['2023-06',60,0.68],['2023-07',47,0.70],['2023-08',74,0.72],['2023-09',76,0.71],['2023-10',72,0.69],['2023-11',59,0.74],['2023-12',55,0.76],['2024-01',62,0.79],['2024-02',54,0.81],['2024-03',68,0.83],['2024-04',71,0.84],['2024-05',56,0.85],['2024-06',48,0.87]];
+  const el=document.getElementById('heatmap');
+  const colLabels=['M0','M3','M6','M9','M12','M15','M18'];
+  let html='<div style="display:grid;grid-template-columns:70px repeat(7,1fr);gap:2px;font-size:9px">';
+  html+='<div style="color:var(--text-muted)">Cohort</div>';
+  colLabels.forEach(l=>{html+=`<div style="text-align:center;color:var(--text-muted);padding:2px 0">${l}</div>`});
+  cohorts.forEach(([label,size,baseRet])=>{
+    html+=`<div style="color:var(--text-secondary);padding:2px 0;font-size:9px">${label}</div>`;
+    const retVals=[1,baseRet,Math.max(baseRet-.08,0.4),Math.max(baseRet-.15,0.3),Math.max(baseRet-.2,0.2),Math.max(baseRet-.25,0.1),0];
+    retVals.forEach((rv,mi)=>{
+      if(mi>0&&rv===0){html+='<div style="background:var(--surface-1);border-radius:3px;height:20px"></div>';return;}
+      const pct=Math.round(rv*100);
+      const bg=pct>=75?'#1baf7a':pct>=55?'#eda100':pct>=35?'#e87ba4':'#e34948';
+      const fg=pct>=55?'#fff':'#fff';
+      html+=`<div style="background:${bg};border-radius:3px;height:20px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:${fg};cursor:default" title="${label} Month ${mi*3}: ${pct}% retention">${mi===0?'100':pct+'%'}</div>`;
+    });
+  });
+  html+='</div>';
+  html+='<div style="display:flex;gap:12px;margin-top:10px;font-size:10px;color:var(--text-muted)">';
+  [['#1baf7a','≥75%'],['#eda100','55–74%'],['#e87ba4','35–54%'],['#e34948','<35%']].forEach(([c,l])=>{
+    html+=`<div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:${c}"></div>${l}</div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function updateKPIs(filter){
+  const d=planData[filter];
+  document.getElementById('kpi-total').textContent=d.total.toLocaleString();
+  document.getElementById('kpi-active').textContent=d.active.toLocaleString();
+  document.getElementById('kpi-churned').textContent=d.churned.toLocaleString();
+  const mrr=filter==='all'?177023:d.mrr;
+  document.getElementById('kpi-mrr').textContent='$'+Math.round(mrr/1000)+'K';
+  document.getElementById('kpi-ltv').textContent='$'+d.ltv.toLocaleString();
+}
+
+document.getElementById('filterBar').addEventListener('click',e=>{
+  const pill=e.target.closest('.filter-pill');
+  if(!pill)return;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');
+  const f=pill.dataset.filter;
+  updateKPIs(f);
+  buildPlanChart(f);
+});
+
+setTimeout(()=>{
+  drawSparklines();
+  buildTrend();
+  buildPlanChart('all');
+  buildReasonChart();
+  buildTicketChart();
+  buildHeatmap();
+},100);
+</script>
